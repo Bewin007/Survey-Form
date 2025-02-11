@@ -1,0 +1,10 @@
+Json data for registaion and login
+{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "register_no": "123456",
+    "password": "securepassword"
+}
+
+
+

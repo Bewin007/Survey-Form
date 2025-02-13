@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="auth-container">
+    <h1>Create an Account</h1>
+    <form id="register-form">
+      <input type="text" id="fullName" placeholder="Full Name" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+      <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="login.html">Login</a></p>
+  </div>
+
+  <script>
+    document.getElementById('register-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // Get form values
+      const fullName = document.getElementById('fullName').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      // Validate password match
+      if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+      }
+
+      // Store user data in localStorage
+      const user = {
+        fullName,
+        email,
+        password,
+      };
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // Show success message
+      alert('Registered successfully!');
+
+      // Redirect to login page
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

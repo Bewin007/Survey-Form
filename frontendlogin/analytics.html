@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Response Analytics</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="analytics-container">
+    <h1>Survey Responses</h1>
+    <canvas id="responseChart"></canvas>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('responseChart').getContext('2d');
+    const responseChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Question 1', 'Question 2', 'Question 3'],
+        datasets: [{
+          label: 'Responses',
+          data: [12, 19, 3],
+          backgroundColor: ['#6200ea', '#03dac6', '#ff4081'],
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

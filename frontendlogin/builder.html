@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survey Builder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="survey-builder">
+    <h1>Create Your Survey</h1>
+    <div class="toolbox">
+      <button onclick="addQuestion('multiple-choice')">Multiple Choice</button>
+      <button onclick="addQuestion('text')">Text Input</button>
+      <button onclick="addQuestion('rating')">Rating Scale</button>
+    </div>
+    <div id="survey-container" class="survey-container"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -103,13 +103,13 @@ class SpecialField(BaseQuestion):
     pass
 
 
-class Response(models.Model):
+class ResponseText(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # The user who submitted
     form = models.ForeignKey(Forms, on_delete=models.CASCADE)  # The form being submitted
     submitted_at = models.DateTimeField(auto_now_add=True)
 
 class AnswerBase(models.Model):
-    response = models.ForeignKey(Response, on_delete=models.CASCADE)  # Link to response
+    ResponseText = models.ForeignKey(ResponseText, on_delete=models.CASCADE)  # Link to ResponseText
     question = models.ForeignKey(BaseQuestion, on_delete=models.CASCADE)
     
     class Meta:

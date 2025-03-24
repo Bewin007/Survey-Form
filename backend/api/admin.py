@@ -1,51 +1,56 @@
 from django.contrib import admin
-from django.contrib.contenttypes.admin import GenericTabularInline
 from .models import (
-    Forms, Choice, RadioButton, CheckBox, DropDown, ShortChoice, LongChoice, 
-    RangeField, FileUpload, SpecialField, Response, TextAnswer, ChoiceAnswer, 
-    RangeAnswer, FileAnswer
+    Forms, Choice, RadioButton, CheckBox, DropDown, ShortChoice, LongChoice,
+    RangeField, FileUpload, SpecialField, FormSubmission, RadioButtonResponse,
+    CheckBoxResponse, DropDownResponse, ShortChoiceResponse, LongChoiceResponse,
+    RangeFieldResponse, FileUploadResponse, SpecialFieldResponse
 )
 
-@admin.register(Forms)
-class FormsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'user', 'sub_title')
-    search_fields = ('title', 'user__username')
-    list_filter = ('user',)
+# Inline options for Questions
+class ChoiceInline(admin.TabularInline):
+    model = Choice
+    extra = 2
 
-@admin.register(Choice)
-class ChoiceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'choice_text')
+class BaseQuestionAdmin(admin.ModelAdmin):
+    list_display = ("question_text", "form", "required", "order")
+    list_filter = ("form", "required")
+    search_fields = ("question_text",)
 
-class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'question_text', 'form', 'required', 'order')
-    search_fields = ('question_text',)
-    list_filter = ('form',)
+class RadioButtonAdmin(BaseQuestionAdmin):
+    filter_horizontal = ("options",)
 
-admin.site.register(RadioButton, QuestionAdmin)
-admin.site.register(CheckBox, QuestionAdmin)
-admin.site.register(DropDown, QuestionAdmin)
-admin.site.register(ShortChoice, QuestionAdmin)
-admin.site.register(LongChoice, QuestionAdmin)
-admin.site.register(RangeField, QuestionAdmin)
-admin.site.register(FileUpload, QuestionAdmin)
-admin.site.register(SpecialField, QuestionAdmin)
+class CheckBoxAdmin(BaseQuestionAdmin):
+    filter_horizontal = ("options",)
 
-@admin.register(Response)
-class ResponseAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'form', 'submitted_at')
-    search_fields = ('user__username', 'form__title')
-    list_filter = ('form',)
+class DropDownAdmin(BaseQuestionAdmin):
+    filter_horizontal = ("options",)
 
-# Generic Inline for Answers
-class AnswerInline(GenericTabularInline):
-    extra = 1
-    readonly_fields = ('content_type', 'object_id')
+# Registering models
+admin.site.register(Forms)
+admin.site.register(Choice)
+admin.site.register(RadioButton, RadioButtonAdmin)
+admin.site.register(CheckBox, CheckBoxAdmin)
+admin.site.register(DropDown, DropDownAdmin)
+admin.site.register(ShortChoice, BaseQuestionAdmin)
+admin.site.register(LongChoice, BaseQuestionAdmin)
+admin.site.register(RangeField, BaseQuestionAdmin)
+admin.site.register(FileUpload, BaseQuestionAdmin)
+admin.site.register(SpecialField, BaseQuestionAdmin)
 
-class AnswerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'response', 'content_type', 'object_id')
-    search_fields = ('response__form__title',)
+# Form Submissions
+class FormSubmissionAdmin(admin.ModelAdmin):
+    list_display = ("user", "form", "submitted_at")
+    list_filter = ("submitted_at", "form")
+    search_fields = ("user__username", "form__title")
 
-admin.site.register(TextAnswer, AnswerAdmin)
-admin.site.register(ChoiceAnswer, AnswerAdmin)
-admin.site.register(RangeAnswer, AnswerAdmin)
-admin.site.register(FileAnswer, AnswerAdmin)
+admin.site.register(FormSubmission, FormSubmissionAdmin)
+
+# Response Admins
+admin.site.register(RadioButtonResponse)
+admin.site.register(CheckBoxResponse)
+admin.site.register(DropDownResponse)
+admin.site.register(ShortChoiceResponse)
+admin.site.register(LongChoiceResponse)
+admin.site.register(RangeFieldResponse)
+admin.site.register(FileUploadResponse)
+admin.site.register(SpecialFieldResponse)

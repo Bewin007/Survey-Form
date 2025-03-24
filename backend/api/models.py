@@ -38,37 +38,62 @@ class LongChoice(BaseQuestion):
 
 class RangeField(BaseQuestion):
     start = models.FloatField(default=1)
-    end = models.FloatField()
+    end = models.FloatField(default=10)
 
 class FileUpload(BaseQuestion):
-    pass
+    file_upload = models.FileField(upload_to="uploads/")
 
 class SpecialField(BaseQuestion):
-    pass
+    special_field = models.TextField()
 
-class Response(models.Model):
+
+
+
+
+
+# --- Form Submission Model ---
+class FormSubmission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    form = models.ForeignKey(Forms, on_delete=models.CASCADE)
+    form = models.ForeignKey(Forms, on_delete=models.CASCADE, related_name="submissions")
     submitted_at = models.DateTimeField(auto_now_add=True)
 
-class AnswerBase(models.Model):
-    response = models.ForeignKey(Response, on_delete=models.CASCADE)
+# --- Response Models ---
+class RadioButtonResponse(models.Model):
+    submission = models.ForeignKey(FormSubmission, on_delete=models.CASCADE, related_name="radio_responses")
+    question = models.ForeignKey(RadioButton, on_delete=models.CASCADE)
+    selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)  # Single choice selected
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    question = GenericForeignKey("content_type", "object_id")
+class CheckBoxResponse(models.Model):
+    submission = models.ForeignKey(FormSubmission, on_delete=models.CASCADE, related_name="checkbox_responses")
+    question = models.ForeignKey(CheckBox, on_delete=models.CASCADE)
+    selected_choices = models.ManyToManyField(Choice)  # Multiple choices selected
 
-    class Meta:
-        abstract = True
+class DropDownResponse(models.Model):
+    submission = models.ForeignKey(FormSubmission, on_delete=models.CASCADE, related_name="dropdown_responses")
+    question = models.ForeignKey(DropDown, on_delete=models.CASCADE)
+    selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)  # Single choice selected
 
-class TextAnswer(AnswerBase):
+class ShortChoiceResponse(models.Model):
+    submission = models.ForeignKey(FormSubmission, on_delete=models.CASCADE, related_name="short_text_responses")
+    question = models.ForeignKey(ShortChoice, on_delete=models.CASCADE)
+    answer_text = models.CharField(max_length=255)
+
+class LongChoiceResponse(models.Model):
+    submission = models.ForeignKey(FormSubmission, on_delete=models.CASCADE, related_name="long_text_responses")
+    question = models.ForeignKey(LongChoice, on_delete=models.CASCADE)
     answer_text = models.TextField()
 
-class ChoiceAnswer(AnswerBase):
-    selected_choices = models.ManyToManyField(Choice)
+class RangeFieldResponse(models.Model):
+    submission = models.ForeignKey(FormSubmission, on_delete=models.CASCADE, related_name="range_responses")
+    question = models.ForeignKey(RangeField, on_delete=models.CASCADE)
+    value = models.FloatField()
 
-class RangeAnswer(AnswerBase):
-    selected_value = models.FloatField()
+class FileUploadResponse(models.Model):
+    submission = models.ForeignKey(FormSubmission, on_delete=models.CASCADE, related_name="file_upload_responses")
+    question = models.ForeignKey(FileUpload, on_delete=models.CASCADE)
+    file = models.FileField(upload_to="uploads/")
 
-class FileAnswer(AnswerBase):
-    uploaded_file = models.FileField(upload_to="uploads/")
+class SpecialFieldResponse(models.Model):
+    submission = models.ForeignKey(FormSubmission, on_delete=models.CASCADE, related_name="special_responses")
+    question = models.ForeignKey(SpecialField, on_delete=models.CASCADE)
+    special_text = models.TextField()

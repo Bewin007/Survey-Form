@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Forms, Choice, RadioButton, CheckBox, DropDown, ShortChoice, LongChoice, RangeField, FileUpload, SpecialField, Response, TextAnswer, ChoiceAnswer, RangeAnswer, FileAnswer
+from .models import *
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
@@ -70,78 +70,134 @@ class SpecialFieldSerializer(BaseQuestionSerializer):
         model = SpecialField
         fields = BaseQuestionSerializer.Meta.fields
 
-# Serializer for Forms
-class FormsSerializer(serializers.ModelSerializer):
-    questions = serializers.SerializerMethodField()
+class FormListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Forms
-        fields = ['id', 'user', 'title', 'sub_title', 'description', 'questions']
+        fields = '__all__'
 
-    def get_questions(self, obj):
-        questions = obj.basequestion_set.all().order_by('order')
-        question_data = []
 
-        for question in questions:
-            if isinstance(question, RadioButton):
-                question_data.append(RadioButtonSerializer(question).data)
-            elif isinstance(question, CheckBox):
-                question_data.append(CheckBoxSerializer(question).data)
-            elif isinstance(question, DropDown):
-                question_data.append(DropDownSerializer(question).data)
-            elif isinstance(question, ShortChoice):
-                question_data.append(ShortChoiceSerializer(question).data)
-            elif isinstance(question, LongChoice):
-                question_data.append(LongChoiceSerializer(question).data)
-            elif isinstance(question, RangeField):
-                question_data.append(RangeFieldSerializer(question).data)
-            elif isinstance(question, FileUpload):
-                question_data.append(FileUploadSerializer(question).data)
-            elif isinstance(question, SpecialField):
-                question_data.append(SpecialFieldSerializer(question).data)
 
-        return question_data
 
-# Serializer for Response model
-class ResponseSerializer(serializers.ModelSerializer):
+class QuestionCreateSerializer(serializers.Serializer):
+    form_id = serializers.IntegerField()
+    question_text = serializers.CharField()
+    required = serializers.BooleanField(default=False)
+    order = serializers.IntegerField()
+    question_type = serializers.ChoiceField(
+        choices=[
+            ("radio", "RadioButton"),
+            ("checkbox", "CheckBox"),
+            ("dropdown", "DropDown"),
+            ("short_text", "ShortChoice"),
+            ("long_text", "LongChoice"),
+            ("range", "RangeField"),
+            ("file", "FileUpload"),
+            ("special", "SpecialField"),
+        ]
+    )
+    choices = serializers.ListField(
+        child=serializers.CharField(), required=False
+    )  # Only for radio, checkbox, dropdown
+    start = serializers.FloatField(required=False)  # Only for range field
+    end = serializers.FloatField(required=False)  # Only for range field
+    file_upload = serializers.FileField(required=False)  # Only for file upload
+    special_field= serializers.CharField(required=False)  # Only for special field
+
+
+
+from rest_framework import serializers
+from .models import RadioButton, CheckBox, DropDown, ShortChoice, LongChoice, RangeField, FileUpload, SpecialField
+
+class QuestionRetrieveSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    question_text = serializers.CharField()
+    required = serializers.BooleanField()
+    order = serializers.IntegerField()
+    question_type = serializers.CharField()
+    options = serializers.ListField(child=serializers.CharField(), required=False)
+    start = serializers.FloatField(required=False, allow_null=True)
+    end = serializers.FloatField(required=False, allow_null=True)
+    file_upload = serializers.FileField(required=False, allow_null=True)
+    special_field = serializers.CharField(required=False, allow_null=True)
+
+    def to_representation(self, instance):
+        data = {
+            "id": instance.id,
+            "question_text": instance.question_text,
+            "required": instance.required,
+            "order": instance.order,
+            "question_type": instance.__class__.__name__,
+        }
+
+        if isinstance(instance, (RadioButton, CheckBox, DropDown)):
+            data["options"] = [choice.choice_text for choice in instance.options.all()]
+        if isinstance(instance, RangeField):
+            data["start"] = instance.start
+            data["end"] = instance.end
+        if isinstance(instance, FileUpload):
+            data["file_upload"] = instance.file_upload.url if instance.file_upload else None
+        if isinstance(instance, SpecialField):
+            data["special_field"] = instance.special_field
+
+        return data
+
+
+
+
+
+from rest_framework import serializers
+from .models import FormSubmission, Choice, RadioButtonResponse, CheckBoxResponse, DropDownResponse, ShortChoiceResponse, LongChoiceResponse, RangeFieldResponse, FileUploadResponse, SpecialFieldResponse
+import base64
+from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
+
+class FormSubmissionSerializer(serializers.ModelSerializer):
+    responses = serializers.JSONField(write_only=True)  # Accepts responses as a JSON object
+
     class Meta:
-        model = Response
-        fields = ['id', 'user', 'form', 'submitted_at']
+        model = FormSubmission
+        fields = ['user', 'form', 'responses']
 
-# Base serializer for answers
-class AnswerBaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TextAnswer  # Placeholder model for AnswerBase
-        fields = ['response', 'question']
+    def create(self, validated_data):
+        responses_data = validated_data.pop('responses')  # Extract responses
+        submission = FormSubmission.objects.create(**validated_data)  # Create submission
 
-# Serializer for TextAnswer model
-class TextAnswerSerializer(AnswerBaseSerializer):
-    answer_text = serializers.CharField()
+        for response in responses_data:
+            question_id = response.get('question_id')
+            question_type = response.get('question_type')
+            answer = response.get('answer')
 
-    class Meta(AnswerBaseSerializer.Meta):
-        model = TextAnswer
-        fields = AnswerBaseSerializer.Meta.fields + ['answer_text']
+            if not question_id or not question_type:
+                raise serializers.ValidationError("Each response must have 'question_id' and 'question_type'.")
 
-# Serializer for ChoiceAnswer model
-class ChoiceAnswerSerializer(AnswerBaseSerializer):
-    selected_choices = ChoiceSerializer(many=True)
+            # Save response based on question type
+            if question_type == "RadioButton":
+                selected_choice = get_object_or_404(Choice, id=answer)
+                RadioButtonResponse.objects.create(submission=submission, question_id=question_id, selected_choice=selected_choice)
 
-    class Meta(AnswerBaseSerializer.Meta):
-        model = ChoiceAnswer
-        fields = AnswerBaseSerializer.Meta.fields + ['selected_choices']
+            elif question_type == "CheckBox":
+                response_obj = CheckBoxResponse.objects.create(submission=submission, question_id=question_id)
+                response_obj.selected_choices.set(Choice.objects.filter(id__in=answer))
 
-# Serializer for RangeAnswer model
-class RangeAnswerSerializer(AnswerBaseSerializer):
-    selected_value = serializers.FloatField()
+            elif question_type == "DropDown":
+                selected_choice = get_object_or_404(Choice, id=answer)
+                DropDownResponse.objects.create(submission=submission, question_id=question_id, selected_choice=selected_choice)
 
-    class Meta(AnswerBaseSerializer.Meta):
-        model = RangeAnswer
-        fields = AnswerBaseSerializer.Meta.fields + ['selected_value']
+            elif question_type == "ShortChoice":
+                ShortChoiceResponse.objects.create(submission=submission, question_id=question_id, answer_text=answer)
 
-# Serializer for FileAnswer model
-class FileAnswerSerializer(AnswerBaseSerializer):
-    uploaded_file = serializers.FileField()
+            elif question_type == "LongChoice":
+                LongChoiceResponse.objects.create(submission=submission, question_id=question_id, answer_text=answer)
 
-    class Meta(AnswerBaseSerializer.Meta):
-        model = FileAnswer
-        fields = AnswerBaseSerializer.Meta.fields + ['uploaded_file']
+            elif question_type == "RangeField":
+                RangeFieldResponse.objects.create(submission=submission, question_id=question_id, value=answer)
+
+            elif question_type == "FileUpload":
+                file_data = base64.b64decode(answer)  # Assuming file is sent as base64
+                FileUploadResponse.objects.create(submission=submission, question_id=question_id, file=ContentFile(file_data, name=f"upload_{question_id}.jpg"))
+
+            elif question_type == "SpecialField":
+                SpecialFieldResponse.objects.create(submission=submission, question_id=question_id, special_text=answer)
+
+        return submission

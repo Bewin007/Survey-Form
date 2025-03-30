@@ -206,3 +206,44 @@ class SubmitFormView(generics.CreateAPIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from .models import FormSubmission
+from .serializers import FormSubmissionResponseSerializer
+
+class FormSubmissionResponseView(generics.RetrieveAPIView):
+    queryset = FormSubmission.objects.all()
+    serializer_class = FormSubmissionResponseSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'  # Use 'id' as the lookup field
+
+
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from .models import FormSubmission
+from .serializers import FormSubmissionListSerializer
+
+class FormSubmissionListView(generics.ListAPIView):
+    serializer_class = FormSubmissionListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        form_id = self.kwargs['form_id']
+        return FormSubmission.objects.filter(form_id=form_id)
+
+
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from .models import FormSubmission
+from .serializers import FormSubmissionResponseSerializer
+
+class FormSubmissionsWithAnswersView(generics.ListAPIView):
+    serializer_class = FormSubmissionResponseSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        form_id = self.kwargs['form_id']
+        return FormSubmission.objects.filter(form_id=form_id)

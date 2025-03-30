@@ -18,24 +18,34 @@
   </div>
 
   <script>
-    document.getElementById('login-form').addEventListener('submit', function (e) {
+    document.getElementById('login-form').addEventListener('submit', async function (e) {
       e.preventDefault();
-
-      // Get form values
+    
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-
-      // Retrieve user data from localStorage
-      const user = JSON.parse(localStorage.getItem('user'));
-
-      // Validate credentials
-      if (user && user.email === email && user.password === password) {
-        alert('Login successful!');
-        window.location.href = 'dashboard.html'; // Redirect to dashboard
-      } else {
-        alert('Invalid email or password!');
+    
+      try {
+        const response = await fetch('http://localhost:8000/user/login/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+    
+        const data = await response.json();
+    
+        if (response.ok) {
+          localStorage.setItem('token', data.access); // Store JWT token
+          alert('Login successful!');
+          window.location.href = 'dashboard.html';
+        } else {
+          alert(data.message || 'Invalid credentials!');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Something went wrong!');
       }
     });
+    
   </script>
 </body>
 </html>

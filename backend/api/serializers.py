@@ -201,3 +201,107 @@ class FormSubmissionSerializer(serializers.ModelSerializer):
                 SpecialFieldResponse.objects.create(submission=submission, question_id=question_id, special_text=answer)
 
         return submission
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from rest_framework import serializers
+from .models import (
+    FormSubmission, RadioButtonResponse, CheckBoxResponse, DropDownResponse, 
+    ShortChoiceResponse, LongChoiceResponse, RangeFieldResponse, 
+    FileUploadResponse, SpecialFieldResponse, Choice
+)
+
+class ChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Choice
+        fields = ['id', 'choice_text']
+
+class RadioButtonResponseSerializer(serializers.ModelSerializer):
+    selected_choice = ChoiceSerializer()
+
+    class Meta:
+        model = RadioButtonResponse
+        fields = ['id', 'question', 'selected_choice']
+
+class CheckBoxResponseSerializer(serializers.ModelSerializer):
+    selected_choices = ChoiceSerializer(many=True)
+
+    class Meta:
+        model = CheckBoxResponse
+        fields = ['id', 'question', 'selected_choices']
+
+class DropDownResponseSerializer(serializers.ModelSerializer):
+    selected_choice = ChoiceSerializer()
+
+    class Meta:
+        model = DropDownResponse
+        fields = ['id', 'question', 'selected_choice']
+
+class ShortChoiceResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShortChoiceResponse
+        fields = ['id', 'question', 'answer_text']
+
+class LongChoiceResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LongChoiceResponse
+        fields = ['id', 'question', 'answer_text']
+
+class RangeFieldResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RangeFieldResponse
+        fields = ['id', 'question', 'value']
+
+class FileUploadResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileUploadResponse
+        fields = ['id', 'question', 'file']
+
+class SpecialFieldResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SpecialFieldResponse
+        fields = ['id', 'question', 'special_text']
+
+class FormSubmissionResponseSerializer(serializers.ModelSerializer):
+    radio_responses = RadioButtonResponseSerializer(many=True, read_only=True)
+    checkbox_responses = CheckBoxResponseSerializer(many=True, read_only=True)
+    dropdown_responses = DropDownResponseSerializer(many=True, read_only=True)
+    short_text_responses = ShortChoiceResponseSerializer(many=True, read_only=True)
+    long_text_responses = LongChoiceResponseSerializer(many=True, read_only=True)
+    range_responses = RangeFieldResponseSerializer(many=True, read_only=True)
+    file_upload_responses = FileUploadResponseSerializer(many=True, read_only=True)
+    special_responses = SpecialFieldResponseSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = FormSubmission
+        fields = [
+            'id', 'user', 'form', 'submitted_at',
+            'radio_responses', 'checkbox_responses', 'dropdown_responses',
+            'short_text_responses', 'long_text_responses', 'range_responses',
+            'file_upload_responses', 'special_responses'
+        ]
+
+
+        
+class FormSubmissionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FormSubmission
+        fields = ['id', 'user', 'submitted_at']

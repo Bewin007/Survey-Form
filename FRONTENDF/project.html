@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Builder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            font-weight: 600;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+            font-weight: 500;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 12px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn-secondary {
+            background-color: #718096;
+        }
+        .btn-secondary:hover {
+            background-color: #4a5568;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        .question-item {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .question-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .question-actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .button-group {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        #questions-container {
+            margin-top: 25px;
+        }
+        .hidden {
+            display: none;
+        }
+        #preview-container {
+            padding: 25px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            margin-top: 25px;
+            border: 1px solid #bee3f8;
+        }
+        /* Home Icon */
+        .home-icon {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        .home-icon:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+        }
+        .home-icon i {
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Survey Builder</h1>
+        
+        <div id="builder-view">
+            <div class="section">
+                <h2>Build Your Survey</h2>
+                <div class="form-group">
+                    <label for="survey-title">Survey Title</label>
+                    <input type="text" id="survey-title" placeholder="Enter survey title">
+                </div>
+                <div class="form-group">
+                    <label for="survey-description">Survey Description</label>
+                    <textarea id="survey-description" placeholder="Enter survey description"></textarea>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Add Questions</h2>
+                <button id="add-question-btn" class="btn">+ Add Question</button>
+                
+                <div id="questions-container">
+                    <!-- Questions will be added here -->
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button id="save-survey-btn" class="btn btn-success">Save Survey</button>
+                <button id="preview-survey-btn" class="btn">Preview Survey</button>
+                <button id="view-surveys-btn" class="btn">View Saved Surveys</button>
+                <button id="statistics-btn" class="btn">Statistics</button>
+                <button id="export-survey-btn" class="btn btn-secondary">Export Survey</button>
+                <button id="clear-survey-btn" class="btn btn-danger">Clear Survey</button>
+            </div>
+        </div>
+        
+        <div id="preview-view" class="hidden">
+            <h2>Survey Preview</h2>
+            <div id="preview-container">
+                <h3 id="preview-title">Survey Title</h3>
+                <p id="preview-description">Survey description goes here</p>
+                <div id="preview-questions">
+                    <!-- Preview questions will be added here -->
+                </div>
+                <div class="button-group">
+                    <button id="submit-survey-btn" class="btn btn-success">Submit Survey</button>
+                    <button id="cancel-preview-btn" class="btn btn-danger">Cancel</button>
+                </div>
+            </div>
+            <button id="back-to-builder-btn" class="btn">Back to Builder</button>
+        </div>
+        
+        <div id="saved-surveys-view" class="hidden">
+            <h2>Saved Surveys</h2>
+            <div class="saved-surveys">
+                <div id="saved-surveys-list">
+                    <!-- Saved surveys will be loaded here -->
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No surveys saved yet</h3>
+                        <p>Create and save your first survey to see it listed here</p>
+                    </div>
+                </div>
+            </div>
+            <button id="back-to-builder-from-surveys" class="btn">Back to Builder</button>
+        </div>
+        
+        <div id="statistics-view" class="hidden">
+            <h2>Survey Statistics</h2>
+            <div class="stats-container">
+                <p>Survey response statistics and analytics.</p>
+                
+                <div class="chart-controls">
+                    <div>
+                        <div class="chart-title" id="chart-title">Response Distribution</div>
+                        <div class="chart-subtitle" id="chart-subtitle">Showing responses for all questions</div>
+                    </div>
+                    <select id="question-selector" class="chart-selector">
+                        <option value="all">All Questions</option>
+                        <!-- Options will be added dynamically -->
+                    </select>
+                </div>
+                
+                <div class="chart-container" id="chart-container">
+                    <div class="bar-chart" id="bar-chart">
+                        <!-- Bar chart will be generated here -->
+                        <div class="empty-state">
+                            <i class="fas fa-chart-bar"></i>
+                            <h3>No data to display</h3>
+                            <p>Submit survey responses to see statistics</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Responses</th>
+                            <th>Average Rating</th>
+                            <th>Most Common Answer</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-table-body">
+                        <!-- Statistics data will be added here -->
+                    </tbody>
+                </table>
+            </div>
+            <button id="export-stats-btn" class="btn btn-secondary">Download Statistics (CSV)</button>
+            <button id="back-to-builder-stats-btn" class="btn">Back to Builder</button>
+        </div>
+    </div>
+
+    <!-- Home Icon -->
+    <div class="home-icon" onclick="redirectToDashboard()">
+        <i class="fas fa-home"></i>
+    </div>
+
+    <script>
+        // Function to redirect to the dashboard
+        function redirectToDashboard() {
+            window.location.href = 'dashboard.html'; // Change this to your dashboard page URL
+        }
+
+        // Local storage key for saved surveys
+        const SURVEYS_STORAGE_KEY = 'savedSurveys';
+        const RESPONSES_STORAGE_KEY = 'surveyResponses';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const builderView = document.getElementById('builder-view');
+            const previewView = document.getElementById('preview-view');
+            const savedSurveysView = document.getElementById('saved-surveys-view');
+            const statisticsView = document.getElementById('statistics-view');
+            const previewTitle = document.getElementById('preview-title');
+            const previewDescription = document.getElementById('preview-description');
+            const previewQuestions = document.getElementById('preview-questions');
+            const questionsContainer = document.getElementById('questions-container');
+            const statsTableBody = document.getElementById('stats-table-body');
+            const barChart = document.getElementById('bar-chart');
+            const savedSurveysList = document.getElementById('saved-surveys-list');
+            const questionSelector = document.getElementById('question-selector');
+            const chartTitle = document.getElementById('chart-title');
+            const chartSubtitle = document.getElementById('chart-subtitle');
+            
+            // Buttons
+            const addQuestionBtn = document.getElementById('add-question-btn');
+            const saveSurveyBtn = document.getElementById('save-survey-btn');
+            const previewSurveyBtn = document.getElementById('preview-survey-btn');
+            const viewSurveysBtn = document.getElementById('view-surveys-btn');
+            const statisticsBtn = document.getElementById('statistics-btn');
+            const exportSurveyBtn = document.getElementById('export-survey-btn');
+            const clearSurveyBtn = document.getElementById('clear-survey-btn');
+            const backToBuilderBtn = document.getElementById('back-to-builder-btn');
+            const backToBuilderFromSurveys = document.getElementById('back-to-builder-from-surveys');
+            const backToBuilderStatsBtn = document.getElementById('back-to-builder-stats-btn');
+            const exportStatsBtn = document.getElementById('export-stats-btn');
+            const submitSurveyBtn = document.getElementById('submit-survey-btn');
+            const cancelPreviewBtn = document.getElementById('cancel-preview-btn');
+            
+            // Question counter
+            let questionCount = 0;
+            // Response data
+            let responseData = [];
+            let totalResponses = 0;
+            // Currently loaded survey
+            let currentSurveyId = null;
+            // Question statistics
+            let questionStats = [];
+            
+            // Initialize the app
+            function init() {
+                loadSavedSurveys();
+                
+                // Check for hash URL to show specific view
+                if (window.location.hash === '#saved') {
+                    showView('saved');
+                } else if (window.location.hash === '#statistics') {
+                    showView('statistics');
+                }
+            }
+
+            // Show a specific view
+            function showView(viewName) {
+                builderView.classList.add('hidden');
+                previewView.classList.add('hidden');
+                savedSurveysView.classList.add('hidden');
+                statisticsView.classList.add('hidden');
+                
+                switch(viewName) {
+                    case 'builder':
+                        window.location.hash = '';
+                        builderView.classList.remove('hidden');
+                        break;
+                    case 'preview':
+                        previewView.classList.remove('hidden');
+                        break;
+                    case 'saved':
+                        window.location.hash = 'saved';
+                        savedSurveysView.classList.remove('hidden');
+                        loadSavedSurveys();
+                        break;
+                    case 'statistics':
+                        window.location.hash = 'statistics';
+                        statisticsView.classList.remove('hidden');
+                        break;
+                }
+            }
+            
+            // Load saved surveys from local storage
+            function loadSavedSurveys() {
+                const savedSurveys = getSavedSurveys();
+                if (savedSurveys.length > 0) {
+                    renderSavedSurveys(savedSurveys);
+                }
+            }
+            
+            // Get saved surveys from local storage
+            function getSavedSurveys() {
+                const surveysJson = localStorage.getItem(SURVEYS_STORAGE_KEY);
+                return surveysJson ? JSON.parse(surveysJson) : [];
+            }
+            
+            // Get survey responses from local storage
+            function getSurveyResponses(surveyId) {
+                const responsesJson = localStorage.getItem(RESPONSES_STORAGE_KEY);
+                const allResponses = responsesJson ? JSON.parse(responsesJson) : {};
+                return allResponses[surveyId] || [];
+            }
+            
+            // Save surveys to local storage
+            function saveSurveysToStorage(surveys) {
+                localStorage.setItem(SURVEYS_STORAGE_KEY, JSON.stringify(surveys));
+            }
+            
+            // Save survey responses to local storage
+            function saveResponsesToStorage(surveyId, responses) {
+                const responsesJson = localStorage.getItem(RESPONSES_STORAGE_KEY);
+                const allResponses = responsesJson ? JSON.parse(responsesJson) : {};
+                allResponses[surveyId] = responses;
+                localStorage.setItem(RESPONSES_STORAGE_KEY, JSON.stringify(allResponses));
+            }
+            
+            // Render saved surveys list
+            function renderSavedSurveys(surveys) {
+                if (surveys.length === 0) {
+                    savedSurveysList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            <h3>No surveys saved yet</h3>
+                            <p>Create and save your first survey to see it listed here</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                savedSurveysList.innerHTML = `
+                    <div class="survey-list">
+                        ${surveys.map((survey, index) => {
+                            const responses = getSurveyResponses(survey.id);
+                            return `
+                            <div class="survey-card" data-id="${survey.id}">
+                                <h3>${survey.title || 'Untitled Survey'}</h3>
+                                <p>${survey.description || 'No description'}</p>
+                                <p><small>${survey.questions.length} questions, ${responses.length} responses</small></p>
+                                <div class="survey-actions">
+                                    <button class="btn" onclick="loadSurvey('${survey.id}')">Edit</button>
+                                    <button class="btn btn-secondary" onclick="viewSurveyStats('${survey.id}')">Statistics</button>
+                                    <button class="btn btn-danger" onclick="deleteSurvey('${survey.id}')">Delete</button>
+                                </div>
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+            
+            // Load a survey into the builder
+            window.loadSurvey = function(surveyId) {
+                const surveys = getSavedSurveys();
+                const survey = surveys.find(s => s.id === surveyId);
+                
+                if (survey) {
+                    currentSurveyId = surveyId;
+                    
+                    // Set basic info
+                    document.getElementById('survey-title').value = survey.title;
+                    document.getElementById('survey-description').value = survey.description;
+                    
+                    // Clear existing questions
+                    questionsContainer.innerHTML = '';
+                    questionCount = 0;
+                    
+                    // Add questions
+                    survey.questions.forEach(q => {
+                        questionCount++;
+                        const questionId = 'question-' + questionCount;
+                        
+                        const questionHtml = `
+                            <div class="question-item" id="${questionId}">
+                                <div class="form-group">
+                                    <label for="${questionId}-text">Question ${questionCount}</label>
+                                    <input type="text" id="${questionId}-text" placeholder="Enter your question" value="${q.text}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Answer Type</label>
+                                    <select id="${questionId}-type" class="answer-type">
+                                        <option value="text" ${q.type === 'text' ? 'selected' : ''}>Text Answer</option>
+                                        <option value="multiple" ${q.type === 'multiple' ? 'selected' : ''}>Multiple Choice</option>
+                                        <option value="checkbox" ${q.type === 'checkbox' ? 'selected' : ''}>Checkboxes</option>
+                                        <option value="dropdown" ${q.type === 'dropdown' ? 'selected' : ''}>Dropdown</option>
+                                        <option value="rating" ${q.type === 'rating' ? 'selected' : ''}>Rating (1-5)</option>
+                                        <option value="date" ${q.type === 'date' ? 'selected' : ''}>Date Picker</option>
+                                        <option value="range" ${q.type === 'range' ? 'selected' : ''}>Range Slider</option>
+                                        <option value="file" ${q.type === 'file' ? 'selected' : ''}>File Upload</option>
+                                    </select>
+                                </div>
+                                ${q.type === 'multiple' || q.type === 'checkbox' || q.type === 'dropdown' ? `
+                                <div class="options-container" id="${questionId}-options" style="display: block;">
+                                    <div class="form-group">
+                                        <label>Options (comma separated)</label>
+                                        <input type="text" id="${questionId}-options-input" placeholder="Option 1, Option 2, Option 3" 
+                                            value="${q.options ? q.options.join(', ') : ''}">
+                                    </div>
+                                </div>
+                                ` : ''}
+                                ${q.type === 'range' ? `
+                                <div class="range-settings-container" id="${questionId}-range-settings" style="display: block;">
+                                    <div class="form-group">
+                                        <label>Min Value</label>
+                                        <input type="number" id="${questionId}-range-min" placeholder="0" value="${q.range?.min || 0}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Max Value</label>
+                                        <input type="number" id="${questionId}-range-max" placeholder="100" value="${q.range?.max || 100}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Step</label>
+                                        <input type="number" id="${questionId}-range-step" placeholder="1" value="${q.range?.step || 1}">
+                                    </div>
+                                </div>
+                                ` : ''}
+                                ${q.type === 'file' ? `
+                                <div class="file-settings-container" id="${questionId}-file-settings" style="display: block;">
+                                    <div class="form-group">
+                                        <label>Allowed File Types</label>
+                                        <select id="${questionId}-file-types" multiple>
+                                            <option value="image/*" ${q.file?.allowedTypes?.includes('image/*') ? 'selected' : ''}>Images</option>
+                                            <option value=".pdf" ${q.file?.allowedTypes?.includes('.pdf') ? 'selected' : ''}>PDF</option>
+                                            <option value=".doc,.docx" ${q.file?.allowedTypes?.includes('.doc,.docx') ? 'selected' : ''}>Word Documents</option>
+                                            <option value=".xls,.xlsx" ${q.file?.allowedTypes?.includes('.xls,.xlsx') ? 'selected' : ''}>Excel Files</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Max File Size (MB)</label>
+                                        <input type="number" id="${questionId}-file-size" placeholder="5" value="${q.file?.maxSize || 5}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Multiple Files</label>
+                                        <input type="checkbox" id="${questionId}-file-multiple" ${q.file?.multiple ? 'checked' : ''}>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                <div class="question-actions">
+                                    <button class="btn btn-danger btn-sm remove-question" data-question-id="${questionId}">Remove Question</button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        questionsContainer.insertAdjacentHTML('beforeend', questionHtml);
+                    });
+                    
+                    // Load responses for this survey
+                    responseData = getSurveyResponses(surveyId);
+                    totalResponses = responseData.length;
+                    
+                    // Show builder view
+                    showView('builder');
+                }
+            };
+            
+            // View statistics for a specific survey
+            window.viewSurveyStats = function(surveyId) {
+                const surveys = getSavedSurveys();
+                const survey = surveys.find(s => s.id === surveyId);
+                
+                if (survey) {
+                    currentSurveyId = surveyId;
+                    
+                    // Load the survey data for statistics
+                    loadSurvey(surveyId);
+                    
+                    // Generate statistics
+                    generateStatisticsData();
+                    updateQuestionSelector();
+                    generateBarChart();
+                    
+                    // Show statistics view
+                    showView('statistics');
+                }
+            };
+            
+            // Delete a survey
+            window.deleteSurvey = function(surveyId) {
+                if (confirm('Are you sure you want to delete this survey? This action cannot be undone.')) {
+                    const surveys = getSavedSurveys();
+                    const updatedSurveys = surveys.filter(s => s.id !== surveyId);
+                    
+                    saveSurveysToStorage(updatedSurveys);
+                    renderSavedSurveys(updatedSurveys);
+                    
+                    if (currentSurveyId === surveyId) {
+                        currentSurveyId = null;
+                    }
+                    
+                    alert('Survey deleted successfully!');
+                }
+            };
+            
+            // Add question functionality
+            addQuestionBtn.addEventListener('click', function() {
+                questionCount++;
+                const questionId = 'question-' + questionCount;
+                
+                const questionHtml = `
+                    <div class="question-item" id="${questionId}">
+                        <div class="form-group">
+                            <label for="${questionId}-text">Question ${questionCount}</label>
+                            <input type="text" id="${questionId}-text" placeholder="Enter your question">
+                        </div>
+                        <div class="form-group">
+                            <label>Answer Type</label>
+                            <select id="${questionId}-type" class="answer-type">
+                                <option value="text">Text Answer</option>
+                                <option value="multiple">Multiple Choice</option>
+                                <option value="checkbox">Checkboxes</option>
+                                <option value="dropdown">Dropdown</option>
+                                <option value="rating">Rating (1-5)</option>
+                                <option value="date">Date Picker</option>
+                                <option value="range">Range Slider</option>
+                                <option value="file">File Upload</option>
+                            </select>
+                        </div>
+                        <div class="options-container" id="${questionId}-options" style="display: none;">
+                            <div class="form-group">
+                                <label>Options (comma separated)</label>
+                                <input type="text" id="${questionId}-options-input" placeholder="Option 1, Option 2, Option 3">
+                            </div>
+                        </div>
+                        <div class="range-settings-container" id="${questionId}-range-settings" style="display: none;">
+                            <div class="form-group">
+                                <label>Min Value</label>
+                                <input type="number" id="${questionId}-range-min" placeholder="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Max Value</label>
+                                <input type="number" id="${questionId}-range-max" placeholder="100" value="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Step</label>
+                                <input type="number" id="${questionId}-range-step" placeholder="1" value="1">
+                            </div>
+                        </div>
+                        <div class="file-settings-container" id="${questionId}-file-settings" style="display: none;">
+                            <div class="form-group">
+                                <label>Allowed File Types</label>
+                                <select id="${questionId}-file-types" multiple>
+                                    <option value="image/*">Images</option>
+                                    <option value=".pdf">PDF</option>
+                                    <option value=".doc,.docx">Word Documents</option>
+                                    <option value=".xls,.xlsx">Excel Files</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Max File Size (MB)</label>
+                                <input type="number" id="${questionId}-file-size" placeholder="5" value="5">
+                            </div>
+                            <div class="form-group">
+                                <label>Multiple Files</label>
+                                <input type="checkbox" id="${questionId}-file-multiple">
+                            </div>
+                        </div>
+                        <div class="question-actions">
+                            <button class="btn btn-danger btn-sm remove-question" data-question-id="${questionId}">Remove Question</button>
+                        </div>
+                    </div>
+                `;
+                
+                questionsContainer.insertAdjacentHTML('beforeend', questionHtml);
+                
+                // Show/hide options based on answer type
+                const typeSelect = document.getElementById(`${questionId}-type`);
+                typeSelect.addEventListener('change', function() {
+                    const optionsContainer = document.getElementById(`${questionId}-options`);
+                    const rangeSettingsContainer = document.getElementById(`${questionId}-range-settings`);
+                    const fileSettingsContainer = document.getElementById(`${questionId}-file-settings`);
+                    
+                    // Hide all containers first
+                    optionsContainer.style.display = 'none';
+                    rangeSettingsContainer.style.display = 'none';
+                    fileSettingsContainer.style.display = 'none';
+                    
+                    // Show relevant container based on selected type
+                    if (this.value === 'multiple' || this.value === 'checkbox' || this.value === 'dropdown') {
+                        optionsContainer.style.display = 'block';
+                    } else if (this.value === 'range') {
+                        rangeSettingsContainer.style.display = 'block';
+                    } else if (this.value === 'file') {
+                        fileSettingsContainer.style.display = 'block';
+                    }
+                });
+            });
+            
+            // Remove question functionality (delegated event)
+            questionsContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-question')) {
+                    const questionId = e.target.getAttribute('data-question-id');
+                    document.getElementById(questionId).remove();
+                }
+            });
+            
+            // Preview survey functionality
+            previewSurveyBtn.addEventListener('click', function() {
+                // Update preview content
+                previewTitle.textContent = document.getElementById('survey-title').value || 'Untitled Survey';
+                previewDescription.textContent = document.getElementById('survey-description').value || 'No description provided';
+                
+                // Clear previous preview questions
+                previewQuestions.innerHTML = '';
+                
+                // Add all questions to preview
+                const questions = questionsContainer.querySelectorAll('.question-item');
+                if (questions.length === 0) {
+                    previewQuestions.innerHTML = '<p>No questions added yet.</p>';
+                } else {
+                    questions.forEach((question, index) => {
+                        const questionText = question.querySelector('input[type="text"]').value || `Question ${index + 1}`;
+                        const questionType = question.querySelector('.answer-type').value;
+                        
+                        let answerField = '';
+                        if (questionType === 'text') {
+                            answerField = '<input type="text" class="preview-answer" placeholder="Your answer">';
+                        } else if (questionType === 'multiple') {
+                            const options = question.querySelector('.options-container input').value.split(',').map(opt => opt.trim());
+                            answerField = `
+                                <div class="preview-option-group">
+                                    ${options.map(opt => 
+                                        `<div class="preview-option-item">
+                                            <input type="radio" name="q${index}" id="q${index}-${opt}">
+                                            <label for="q${index}-${opt}">${opt || 'Option'}</label>
+                                        </div>`
+                                    ).join('')}
+                                </div>`;
+                        } else if (questionType === 'checkbox') {
+                            const options = question.querySelector('.options-container input').value.split(',').map(opt => opt.trim());
+                            answerField = `
+                                <div class="preview-option-group">
+                                    ${options.map(opt => 
+                                        `<div class="preview-option-item">
+                                            <input type="checkbox" id="q${index}-${opt}">
+                                            <label for="q${index}-${opt}">${opt || 'Option'}</label>
+                                        </div>`
+                                    ).join('')}
+                                </div>`;
+                        } else if (questionType === 'dropdown') {
+                            const options = question.querySelector('.options-container input').value.split(',').map(opt => opt.trim());
+                            answerField = `<select><option value="">Select an option</option>${
+                                options.map(opt => `<option value="${opt}">${opt || 'Option'}</option>`).join('')
+                            }</select>`;
+                        } else if (questionType === 'rating') {
+                            answerField = `
+                                <div class="preview-option-group">
+                                    ${[1, 2, 3, 4, 5].map(num => 
+                                        `<div class="preview-option-item">
+                                            <input type="radio" name="q${index}-rating" id="q${index}-rating-${num}" value="${num}">
+                                            <label for="q${index}-rating-${num}">${num}</label>
+                                        </div>`
+                                    ).join('')}
+                                </div>
+                            `;
+                        } else if (questionType === 'date') {
+                            answerField = '<input type="date" class="preview-answer">';
+                        } else if (questionType === 'range') {
+                            const min = question.querySelector('.range-settings-container input[id$="-range-min"]').value || 0;
+                            const max = question.querySelector('.range-settings-container input[id$="-range-max"]').value || 100;
+                            const step = question.querySelector('.range-settings-container input[id$="-range-step"]').value || 1;
+                            
+                            answerField = `
+                                <div class="range-slider">
+                                    <input type="range" min="${min}" max="${max}" step="${step}" value="${min}" class="preview-range-slider">
+                                    <div class="range-values">
+                                        <span>${min}</span>
+                                        <span class="range-current-value">${min}</span>
+                                        <span>${max}</span>
+                                    </div>
+                                </div>
+                            `;
+                        } else if (questionType === 'file') {
+                            const multiple = question.querySelector('.file-settings-container input[id$="-file-multiple"]').checked;
+                            const fileTypes = Array.from(question.querySelector('.file-settings-container select[id$="-file-types"]').selectedOptions)
+                                .map(opt => opt.value).join(',');
+                            const fileSize = question.querySelector('.file-settings-container                            input[id$="-file-size"]').value || 5;
+                            
+                            answerField = `
+                                <div class="form-group">
+                                    <input type="file" class="preview-file-upload" ${multiple ? 'multiple' : ''} 
+                                        accept="${fileTypes}" data-max-size="${fileSize}">
+                                    <div class="file-upload-preview"></div>
+                                </div>
+                            `;
+                        }
+                        
+                        const questionHtml = `
+                            <div class="preview-question">
+                                <h4>${index + 1}. ${questionText}</h4>
+                                <div class="preview-answer-field">
+                                    ${answerField}
+                                </div>
+                            </div>
+                        `;
+                        
+                        previewQuestions.insertAdjacentHTML('beforeend', questionHtml);
+                    });
+                }
+                
+                // Add event listeners for range sliders in preview
+                previewQuestions.querySelectorAll('.preview-range-slider').forEach(slider => {
+                    slider.addEventListener('input', function() {
+                        const currentValueDisplay = this.closest('.range-slider').querySelector('.range-current-value');
+                        currentValueDisplay.textContent = this.value;
+                    });
+                });
+                
+                // Add event listeners for file uploads in preview
+                previewQuestions.querySelectorAll('.preview-file-upload').forEach(fileInput => {
+                    fileInput.addEventListener('change', function() {
+                        const previewDiv = this.nextElementSibling;
+                        previewDiv.innerHTML = '';
+                        
+                        if (this.files && this.files.length > 0) {
+                            previewDiv.style.display = 'block';
+                            
+                            // Check file size
+                            const maxSize = parseInt(this.getAttribute('data-max-size')) * 1024 * 1024; // Convert MB to bytes
+                            let validFiles = true;
+                            
+                            for (let i = 0; i < this.files.length; i++) {
+                                if (this.files[i].size > maxSize) {
+                                    alert(`File "${this.files[i].name}" exceeds the maximum allowed size of ${this.getAttribute('data-max-size')}MB`);
+                                    validFiles = false;
+                                    break;
+                                }
+                            }
+                            
+                            if (!validFiles) {
+                                this.value = '';
+                                previewDiv.style.display = 'none';
+                                return;
+                            }
+                            
+                            // Display preview for image files
+                            for (let i = 0; i < this.files.length; i++) {
+                                const file = this.files[i];
+                                if (file.type.match('image.*')) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        const img = document.createElement('img');
+                                        img.src = e.target.result;
+                                        img.title = file.name;
+                                        previewDiv.appendChild(img);
+                                    };
+                                    reader.readAsDataURL(file);
+                                } else {
+                                    const fileInfo = document.createElement('div');
+                                    fileInfo.textContent = file.name;
+                                    previewDiv.appendChild(fileInfo);
+                                }
+                            }
+                        } else {
+                            previewDiv.style.display = 'none';
+                        }
+                    });
+                });
+                
+                // Switch to preview view
+                showView('preview');
+            });
+            
+            // Submit survey functionality
+            submitSurveyBtn.addEventListener('click', function() {
+                const responses = {};
+                let isValid = true;
+                
+                // Collect all responses
+                const questions = questionsContainer.querySelectorAll('.question-item');
+                questions.forEach((question, index) => {
+                    const questionType = question.querySelector('.answer-type').value;
+                    const questionText = question.querySelector('input[type="text"]').value || `Question ${index + 1}`;
+                    
+                    if (questionType === 'text') {
+                        const answer = document.querySelector(`#preview-questions .preview-question:nth-child(${index + 1}) .preview-answer`);
+                        responses[`q${index}`] = answer.value || '';
+                    } 
+                    else if (questionType === 'multiple' || questionType === 'dropdown') {
+                        const selected = document.querySelector(`#preview-questions .preview-question:nth-child(${index + 1}) input[type="radio"]:checked, 
+                                                             #preview-questions .preview-question:nth-child(${index + 1}) select`);
+                        if (selected) {
+                            responses[`q${index}`] = selected.value || selected.textContent;
+                        } else {
+                            responses[`q${index}`] = '';
+                        }
+                    } 
+                    else if (questionType === 'checkbox') {
+                        const checked = Array.from(document.querySelectorAll(`#preview-questions .preview-question:nth-child(${index + 1}) input[type="checkbox"]:checked`));
+                        responses[`q${index}`] = checked.map(cb => cb.nextElementSibling.textContent).join(', ') || 'None selected';
+                    } 
+                    else if (questionType === 'rating') {
+                        const selected = document.querySelector(`#preview-questions .preview-question:nth-child(${index + 1}) input[type="radio"]:checked`);
+                        responses[`q${index}`] = selected ? selected.value : '';
+                    } 
+                    else if (questionType === 'date') {
+                        const dateInput = document.querySelector(`#preview-questions .preview-question:nth-child(${index + 1}) input[type="date"]`);
+                        responses[`q${index}`] = dateInput.value;
+                    } 
+                    else if (questionType === 'range') {
+                        const slider = document.querySelector(`#preview-questions .preview-question:nth-child(${index + 1}) input[type="range"]`);
+                        responses[`q${index}`] = slider.value;
+                    } 
+                    else if (questionType === 'file') {
+                        const fileInput = document.querySelector(`#preview-questions .preview-question:nth-child(${index + 1}) input[type="file"]`);
+                        if (fileInput.files.length > 0) {
+                            responses[`q${index}`] = Array.from(fileInput.files).map(f => f.name).join(', ');
+                        } else {
+                            responses[`q${index}`] = 'No files uploaded';
+                        }
+                    }
+                    
+                    // Simple validation - check required fields
+                    if ((questionType !== 'file' && questionType !== 'checkbox') && !responses[`q${index}`]) {
+                        alert(`Please answer question: ${questionText}`);
+                        isValid = false;
+                        return;
+                    }
+                });
+                
+                if (!isValid) return;
+                
+                // Add to response data
+                responseData.push(responses);
+                totalResponses++;
+                
+                // Save responses to local storage
+                saveResponsesToStorage(currentSurveyId, responseData);
+                
+                alert('Survey submitted successfully! Thank you for your participation.');
+                showView('builder');
+            });
+            
+            // Cancel preview
+            cancelPreviewBtn.addEventListener('click', function() {
+                showView('builder');
+            });
+            
+            // View saved surveys
+            viewSurveysBtn.addEventListener('click', function() {
+                showView('saved');
+            });
+            
+            // View statistics functionality
+            statisticsBtn.addEventListener('click', function() {
+                if (!currentSurveyId) {
+                    alert('Please save the survey first before viewing statistics');
+                    return;
+                }
+                
+                // Load responses for this survey
+                responseData = getSurveyResponses(currentSurveyId);
+                totalResponses = responseData.length;
+                
+                if (totalResponses === 0) {
+                    alert('No responses yet. Please submit some responses first.');
+                    return;
+                }
+                
+                // Generate statistics based on the response data
+                generateStatisticsData();
+                updateQuestionSelector();
+                generateBarChart();
+                
+                // Switch to statistics view
+                showView('statistics');
+            });
+            
+            // Update question selector dropdown
+            function updateQuestionSelector() {
+                questionSelector.innerHTML = '<option value="all">All Questions</option>';
+                
+                const questions = questionsContainer.querySelectorAll('.question-item');
+                questions.forEach((question, index) => {
+                    const questionText = question.querySelector('input[type="text"]').value || `Question ${index + 1}`;
+                    questionSelector.innerHTML += `<option value="q${index}">${questionText}</option>`;
+                });
+            }
+            
+            // Handle question selection change
+            questionSelector.addEventListener('change', function() {
+                generateBarChart();
+            });
+            
+            // Generate statistics data
+            function generateStatisticsData() {
+                statsTableBody.innerHTML = '';
+                questionStats = [];
+                
+                const questions = questionsContainer.querySelectorAll('.question-item');
+                if (questions.length === 0) {
+                    statsTableBody.innerHTML = '<tr><td colspan="4">No questions in survey</td></tr>';
+                    return;
+                }
+                
+                questions.forEach((question, index) => {
+                    const questionText = question.querySelector('input[type="text"]').value || `Question ${index + 1}`;
+                    const questionType = question.querySelector('.answer-type').value;
+                    const options = question.querySelector('.options-container input')?.value.split(',').map(opt => opt.trim()) || [];
+                    const minRange = question.querySelector('.range-settings-container input[id$="-range-min"]')?.value || 0;
+                    const maxRange = question.querySelector('.range-settings-container input[id$="-range-max"]')?.value || 100;
+                    
+                    let averageRating = '';
+                    let mostCommonAnswer = '';
+                    let answerDistribution = {};
+                    
+                    // Calculate statistics based on response data
+                    if (questionType === 'rating') {
+                        const ratings = responseData.map(r => r[`q${index}`]).filter(r => r).map(Number);
+                        if (ratings.length > 0) {
+                            const sum = ratings.reduce((a, b) => a + b, 0);
+                            averageRating = (sum / ratings.length).toFixed(1);
+                            
+                            // Count frequency of each rating
+                            const ratingCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+                            ratings.forEach(r => ratingCounts[r]++);
+                            mostCommonAnswer = Object.keys(ratingCounts).reduce((a, b) => ratingCounts[a] > ratingCounts[b] ? a : b);
+                            answerDistribution = ratingCounts;
+                        }
+                    } 
+                    else if (questionType === 'multiple' || questionType === 'dropdown') {
+                        const answers = responseData.map(r => r[`q${index}`]).filter(r => r);
+                        
+                        // Count frequency of each option
+                        options.forEach(opt => {
+                            answerDistribution[opt] = answers.filter(a => a === opt).length;
+                        });
+                        
+                        // Find most common answer
+                        let maxCount = 0;
+                        options.forEach(opt => {
+                            const count = answers.filter(a => a === opt).length;
+                            if (count > maxCount) {
+                                maxCount = count;
+                                mostCommonAnswer = opt;
+                            }
+                        });
+                    } 
+                    else if (questionType === 'checkbox') {
+                        const allAnswers = responseData.map(r => r[`q${index}`]).filter(r => r);
+                        const selectedOptions = {};
+                        
+                        // Count frequency of each option being checked
+                        options.forEach(opt => {
+                            selectedOptions[opt] = allAnswers.filter(a => a.includes(opt)).length;
+                        });
+                        
+                        // Find most common option
+                        let maxCount = 0;
+                        options.forEach(opt => {
+                            const count = allAnswers.filter(a => a.includes(opt)).length;
+                            if (count > maxCount) {
+                                maxCount = count;
+                                mostCommonAnswer = opt;
+                            }
+                        });
+                        
+                        answerDistribution = selectedOptions;
+                    } 
+                    else if (questionType === 'date') {
+                        const dates = responseData.map(r => r[`q${index}`]).filter(r => r);
+                        if (dates.length > 0) {
+                            // Convert to timestamps and find average
+                            const timestamps = dates.map(d => new Date(d).getTime());
+                            const avgTimestamp = timestamps.reduce((a, b) => a + b, 0) / timestamps.length;
+                            averageRating = new Date(avgTimestamp).toISOString().split('T')[0];
+                            
+                            // Find most common date
+                            const dateCounts = {};
+                            dates.forEach(d => {
+                                dateCounts[d] = (dateCounts[d] || 0) + 1;
+                            });
+                            mostCommonAnswer = Object.keys(dateCounts).reduce((a, b) => dateCounts[a] > dateCounts[b] ? a : b);
+                        }
+                    }
+                    else if (questionType === 'range') {
+                        const values = responseData.map(r => r[`q${index}`]).filter(r => r).map(Number);
+                        if (values.length > 0) {
+                            const sum = values.reduce((a, b) => a + b, 0);
+                            averageRating = (sum / values.length).toFixed(1);
+                            
+                            // Group values into buckets for most common
+                            const range = maxRange - minRange;
+                            const bucketSize = Math.max(1, Math.floor(range / 5));
+                            const buckets = {};
+                            
+                            values.forEach(v => {
+                                const bucket = Math.floor((v - minRange) / bucketSize) * bucketSize + minRange;
+                                const bucketLabel = `${bucket}-${bucket + bucketSize}`;
+                                buckets[bucketLabel] = (buckets[bucketLabel] || 0) + 1;
+                            });
+                            
+                            mostCommonAnswer = Object.keys(buckets).reduce((a, b) => buckets[a] > buckets[b] ? a : b);
+                        }
+                    }
+                    else if (questionType === 'file') {
+                        const files = responseData.map(r => r[`q${index}`]).filter(r => r);
+                        mostCommonAnswer = files.includes("No files uploaded") ? "No files uploaded" : "Files uploaded";
+                        answerDistribution = {
+                            "Files uploaded": files.filter(f => f !== "No files uploaded").length,
+                            "No files uploaded": files.filter(f => f === "No files uploaded").length
+                        };
+                    }
+                    else {
+                        // For text questions, show response count only
+                        mostCommonAnswer = "Text responses";
+                        answerDistribution = {
+                            "Responses": responseData.filter(r => r[`q${index}`]).length
+                        };
+                    }
+                    
+                    // Store question stats for chart generation
+                    questionStats.push({
+                        index,
+                        text: questionText,
+                        type: questionType,
+                        averageRating,
+                        mostCommonAnswer,
+                        answerDistribution,
+                        options
+                    });
+                    
+                    const rowHtml = `
+                        <tr>
+                            <td>${questionText}</td>
+                            <td>${responseData.filter(r => r[`q${index}`]).length}</td>
+                            <td>${averageRating || '-'}</td>
+                            <td>${mostCommonAnswer || '-'}</td>
+                        </tr>
+                    `;
+                    
+                    statsTableBody.insertAdjacentHTML('beforeend', rowHtml);
+                });
+            }
+            
+            // Generate bar chart based on selected question
+            function generateBarChart() {
+                barChart.innerHTML = '';
+                
+                if (totalResponses === 0) {
+                    barChart.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-chart-bar"></i>
+                            <h3>No data to display</h3>
+                            <p>Submit survey responses to see statistics</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const selectedQuestion = questionSelector.value;
+                
+                if (selectedQuestion === 'all') {
+                    // Show summary chart for all questions
+                    chartTitle.textContent = 'Response Summary';
+                    chartSubtitle.textContent = `Showing response counts for all questions (${totalResponses} total responses)`;
+                    
+                    // Create a horizontal bar chart showing response counts per question
+                    const maxResponses = Math.max(...questionStats.map(q => 
+                        responseData.filter(r => r[`q${q.index}`]).length
+                    ), 1);
+                    
+                    questionStats.forEach(q => {
+                        const responseCount = responseData.filter(r => r[`q${q.index}`]).length;
+                        const barWidth = (responseCount / maxResponses) * 80;
+                        
+                        const barHtml = `
+                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                <div style="width: 200px; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                                    title="${q.text}">${q.text}</div>
+                                <div style="display: flex; align-items: center; flex-grow: 1;">
+                                    <div style="width: ${barWidth}%; height: 20px; background: linear-gradient(to right, #3498db, #4cc9f0); 
+                                        border-radius: 4px; margin-right: 10px;"></div>
+                                    <div style="font-size: 14px; font-weight: 500;">${responseCount}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        barChart.insertAdjacentHTML('beforeend', barHtml);
+                    });
+                } else {
+                    // Show detailed chart for selected question
+                    const questionIndex = parseInt(selectedQuestion.substring(1));
+                    const question = questionStats[questionIndex];
+                    
+                    if (!question) return;
+                    
+                    chartTitle.textContent = `Response Distribution: ${question.text}`;
+                    chartSubtitle.textContent = `Showing ${responseData.filter(r => r[`q${questionIndex}`]).length} responses`;
+                    
+                    const answerDistribution = question.answerDistribution;
+                    const maxValue = Math.max(...Object.values(answerDistribution), 1);
+                    
+                    // Create bars for each answer option
+                    for (const [label, value] of Object.entries(answerDistribution)) {
+                        const barHeight = (value / maxValue) * 250;
+                        const percentage = totalResponses > 0 ? Math.round((value / totalResponses) * 100) : 0;
+                        
+                        const barHtml = `
+                            <div class="bar-container">
+                                <div class="bar" style="height: ${barHeight}px">
+                                    <div class="bar-value">${value} (${percentage}%)</div>
+                                </div>
+                                <div class="bar-label">${label}</div>
+                            </div>
+                        `;
+                        
+                        barChart.insertAdjacentHTML('beforeend', barHtml);
+                    }
+                    
+                    // If no bars were created (like for text questions), show message
+                    if (barChart.children.length === 0) {
+                        barChart.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-info-circle"></i>
+                                <h3>No distribution data available</h3>
+                                <p>This question type doesn't support distribution charts</p>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            // Back to builder from preview
+            backToBuilderBtn.addEventListener('click', function() {
+                showView('builder');
+            });
+            
+            // Back to builder from saved surveys
+            backToBuilderFromSurveys.addEventListener('click', function() {
+                window.location.hash = '';
+                showView('builder');
+            });
+            
+            // Back to builder from statistics
+            backToBuilderStatsBtn.addEventListener('click', function() {
+                window.location.hash = '';
+                showView('builder');
+            });
+            
+            // Save survey functionality
+            saveSurveyBtn.addEventListener('click', function() {
+                const surveyTitle = document.getElementById('survey-title').value;
+                if (!surveyTitle) {
+                    alert('Please enter a survey title');
+                    return;
+                }
+                
+                const surveyData = {
+                    id: currentSurveyId || Date.now().toString(),
+                    title: surveyTitle,
+                    description: document.getElementById('survey-description').value,
+                    questions: []
+                };
+                
+                // Collect all questions
+                const questionElements = questionsContainer.querySelectorAll('.question-item');
+                questionElements.forEach(question => {
+                    const questionData = {
+                        text: question.querySelector('input[type="text"]').value,
+                        type: question.querySelector('.answer-type').value,
+                        options: []
+                    };
+                    
+                    // Add options if applicable
+                    if (questionData.type === 'multiple' || questionData.type === 'checkbox' || questionData.type === 'dropdown') {
+                        const optionsInput = question.querySelector('.options-container input');
+                        questionData.options = optionsInput.value.split(',').map(opt => opt.trim());
+                    }
+                    // Add range settings if applicable
+                    else if (questionData.type === 'range') {
+                        questionData.range = {
+                            min: question.querySelector('.range-settings-container input[id$="-range-min"]').value || 0,
+                            max: question.querySelector('.range-settings-container input[id$="-range-max"]').value || 100,
+                            step: question.querySelector('.range-settings-container input[id$="-range-step"]').value || 1
+                        };
+                    }
+                    // Add file settings if applicable
+                    else if (questionData.type === 'file') {
+                        questionData.file = {
+                            allowedTypes: Array.from(question.querySelector('.file-settings-container select[id$="-file-types"]').selectedOptions)
+                                .map(opt => opt.value),
+                            maxSize: question.querySelector('.file-settings-container input[id$="-file-size"]').value || 5,
+                            multiple: question.querySelector('.file-settings-container input[id$="-file-multiple"]').checked
+                        };
+                    }
+                    
+                    surveyData.questions.push(questionData);
+                });
+                
+                // Save to local storage
+                const surveys = getSavedSurveys();
+                const existingIndex = surveys.findIndex(s => s.id === surveyData.id);
+                
+                if (existingIndex >= 0) {
+                    surveys[existingIndex] = surveyData;
+                } else {
+                    surveys.push(surveyData);
+                }
+                
+                saveSurveysToStorage(surveys);
+                currentSurveyId = surveyData.id;
+                
+                alert('Survey saved successfully!');
+            });
+            
+            // Export survey functionality
+            // Export survey functionality
+exportSurveyBtn.addEventListener('click', function() {
+    // Collect survey data
+    const surveyData = {
+        title: document.getElementById('survey-title').value,
+        description: document.getElementById('survey-description').value,
+        questions: []
+    };
+
+    // Collect all questions
+    const questionElements = questionsContainer.querySelectorAll('.question-item');
+    questionElements.forEach(question => {
+        const questionData = {
+            text: question.querySelector('input[type="text"]').value,
+            type: question.querySelector('.answer-type').value,
+            options: []
+        };
+
+        // Add options if applicable
+        if (questionData.type === 'multiple' || questionData.type === 'checkbox' || questionData.type === 'dropdown') {
+            const optionsInput = question.querySelector('.options-container input');
+            questionData.options = optionsInput.value.split(',').map(opt => opt.trim());
+        }
+        // Add range settings if applicable
+        else if (questionData.type === 'range') {
+            questionData.range = {
+                min: question.querySelector('.range-settings-container input[id$="-range-min"]').value || 0,
+                max: question.querySelector('.range-settings-container input[id$="-range-max"]').value || 100,
+                step: question.querySelector('.range-settings-container input[id$="-range-step"]').value || 1
+            };
+        }
+        // Add file settings if applicable
+        else if (questionData.type === 'file') {
+            questionData.file = {
+                allowedTypes: Array.from(question.querySelector('.file-settings-container select[id$="-file-types"]').selectedOptions)
+                    .map(opt => opt.value),
+                maxSize: question.querySelector('.file-settings-container input[id$="-file-size"]').value || 5,
+                multiple: question.querySelector('.file-settings-container input[id$="-file-multiple"]').checked
+            };
+        }
+
+        surveyData.questions.push(questionData);
+    });
+
+    // Generate a unique identifier for the survey
+    const surveyId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+
+    // Save the survey data to local storage with the unique identifier
+    const surveys = getSavedSurveys();
+    surveys.push({ id: surveyId, ...surveyData });
+    saveSurveysToStorage(surveys);
+
+    // Generate the shareable link
+    const shareableLink = window.location.origin + '/survey/' + surveyId;
+
+    // Display the link to the user
+    alert('Survey link generated: ' + shareableLink);
+});
+            // Export statistics functionality
+            exportStatsBtn.addEventListener('click', function() {
+                // Generate CSV content
+                let csvContent = "Question,Responses,Average Rating,Most Common Answer\n";
+                
+                const rows = statsTableBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const cols = row.querySelectorAll('td');
+                    const rowData = Array.from(cols).map(col => `"${col.textContent.replace(/"/g, '""')}"`).join(',');
+                    csvContent += rowData + '\n';
+                });
+                
+                // Add response data
+                csvContent += "\nResponse Data\n";
+                responseData.forEach((response, index) => {
+                    csvContent += `Response ${index + 1},`;
+                    const questions = questionsContainer.querySelectorAll('.question-item');
+                    questions.forEach((q, i) => {
+                        csvContent += `"${response[`q${i}`] || ''}",`;
+                    });
+                    csvContent += '\n';
+                });
+                
+                // Create and download CSV file
+                const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "survey_statistics.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            // Clear survey functionality
+            clearSurveyBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear the entire survey? This cannot be undone.')) {
+                    document.getElementById('survey-title').value = '';
+                    document.getElementById('survey-description').value = '';
+                    questionsContainer.innerHTML = '';
+                    questionCount = 0;
+                    responseData = [];
+                    totalResponses = 0;
+                    currentSurveyId = null;
+                }
+            });
+            
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>
